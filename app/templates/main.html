@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bosh Sahifa - Kirimlar va Chiqimlar</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .main-container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #4a69bd;
+            font-size: 2.8rem;
+            margin-bottom: 25px;
+            font-weight: 700;
+        }
+
+        p {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 40px;
+            line-height: 1.7;
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column; /* Vertically stacked buttons */
+            gap: 20px; /* Space between buttons */
+        }
+
+        .btn {
+            padding: 18px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-income {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%); /* Green for income */
+        }
+
+        .btn-expense {
+            background: linear-gradient(135deg, #dc3545 0%, #ff6f61 100%); /* Red for expense */
+        }
+
+        .btn-income span, .btn-expense span {
+            margin-right: 12px;
+            font-size: 1.8rem; /* Larger icon size */
+        }
+
+        @media (min-width: 550px) {
+            .button-group {
+                flex-direction: row; /* Horizontal for larger screens */
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-container {
+                padding: 30px 20px;
+            }
+            h1 {
+                font-size: 2.2rem;
+            }
+            p {
+                font-size: 1rem;
+            }
+            .btn {
+                font-size: 1.1rem;
+                padding: 15px 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <h1>Xush Kelibsiz!</h1>
+        <p>Moliyaviy operatsiyalaringizni boshqarish uchun quyidagi bo'limlardan birini tanlang:</p>
+        <div class="button-group">
+            <a href="{% url 'app:income_list' %}" class="btn btn-income">
+                <span>💸</span> Kirimlar
+            </a>
+            <a href="{% url 'app:expense_list' %}" class="btn btn-expense">
+                <span>💰</span> Chiqimlar
+            </a>
+        </div>
+    </div>
+</body>
+</html>
