@@ -89,6 +89,6 @@ venv/
 venv1.zip
 venv1
 # Static and media files
-#static/*
+static/*
 media/*
-
+staticfiles/
