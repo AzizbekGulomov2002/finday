@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Sum
-from .models import Expense
+from .models import Debit, Expense, Owed
 from datetime import datetime
 from django.views.decorators.http import require_http_methods
 
@@ -273,3 +273,147 @@ def delete_income(request, pk):
     income.delete()
     messages.success(request, "Kirim muvaffaqiyatli o'chirildi!")
     return redirect('app:income_list')
+
+@require_http_methods(['GET', 'POST'])
+def expected_expense_view(request):
+    start = request.GET.get('start')
+    end = request.GET.get('end')
+    qs = Debit.objects.all().order_by('date')  # ordered by upcoming date
+    total = None
+
+    if start and end:
+        try:
+            s = datetime.fromisoformat(start).date()
+            e = datetime.fromisoformat(end).date()
+            qs = qs.filter(date__range=[s, e])
+            total = qs.aggregate(Sum('amount'))['amount__sum']
+        except ValueError:
+            messages.error(request, "Sana formati noto'g'ri. YYYY-MM-DD formatida kiriting.")
+            start = end = None
+            total = None
+
+    paginator = Paginator(qs, 10)
+    page = request.GET.get('page')
+    try:
+        debits = paginator.page(page)
+    except PageNotAnInteger:
+        debits = paginator.page(1)
+    except EmptyPage:
+        debits = paginator.page(paginator.num_pages)
+
+    if request.method == 'POST':
+        debit_id = request.POST.get('id')
+        name = request.POST.get('name')
+        amount_str = request.POST.get('amount')
+        date_str = request.POST.get('date')
+
+        if not name or not amount_str or not date_str:
+            messages.error(request, "Barcha maydonlar to'ldirilishi shart.")
+            # Redirect to current page with existing filters
+            return redirect(request.META.get('HTTP_REFERER', 'app:expected_expense_list'))
+        try:
+            amount = float(amount_str)
+            date_obj = datetime.fromisoformat(date_str).date()
+        except ValueError:
+            messages.error(request, "Miqdor yoki sana noto'g'ri. Miqdor raqam, sana YYYY-MM-DD formatida bo'lishi kerak.")
+            # Redirect to current page with existing filters
+            return redirect(request.META.get('HTTP_REFERER', 'app:expected_expense_list'))
+
+        if debit_id:
+            db = get_object_or_404(Debit, pk=int(debit_id))
+            db.name, db.amount, db.date = name, amount, date_obj
+            db.save()
+            messages.success(request, "Kutilayotgan chiqim yangilandi!")
+        else:
+            Debit.objects.create(name=name, amount=amount, date=date_obj)
+            messages.success(request, "Yangi kutilayotgan chiqim qo'shildi!")
+        # Redirect to current page with existing filters
+        return redirect(request.META.get('HTTP_REFERER', 'app:expected_expense_list'))
+
+    return render(request, 'expected_expense.html', {
+        'debits': debits,
+        'total': total,
+        'start': start,
+        'end': end,
+    })
+
+@require_http_methods(['POST'])
+def delete_expected_expense(request, pk):
+    debit = get_object_or_404(Debit, pk=pk)
+    debit.delete()
+    messages.success(request, f"Kutilayotgan chiqim '{debit.name}' muvaffaqiyatli o'chirildi.")
+    return redirect(request.META.get('HTTP_REFERER', 'app:expected_expense_list'))
+
+
+@require_http_methods(['GET', 'POST'])
+def expected_income_view(request):
+    start = request.GET.get('start')
+    end = request.GET.get('end')
+    qs = Owed.objects.all().order_by('date') # Ordered by upcoming date
+    total = None
+
+    if start and end:
+        try:
+            s = datetime.fromisoformat(start).date()
+            e = datetime.fromisoformat(end).date()
+            qs = qs.filter(date__range=[s, e])
+            total = qs.aggregate(Sum('amount'))['amount__sum']
+        except ValueError:
+            messages.error(request, "Sana formati noto'g'ri. YYYY-MM-DD formatida kiriting.")
+            start = end = None
+            total = None
+
+    paginator = Paginator(qs, 10)
+    page = request.GET.get('page')
+    try:
+        oweds = paginator.page(page)
+    except PageNotAnInteger:
+        oweds = paginator.page(1)
+    except EmptyPage:
+        oweds = paginator.page(paginator.num_pages)
+
+    if request.method == 'POST':
+        owed_id = request.POST.get('id')
+        name = request.POST.get('name')
+        amount_str = request.POST.get('amount')
+        date_str = request.POST.get('date')
+
+        if not name or not amount_str or not date_str:
+            messages.error(request, "Barcha maydonlar to'ldirilishi shart.")
+            # Redirect back to the current page, preserving filters
+            return redirect(request.META.get('HTTP_REFERER', 'app:expected_income_list'))
+        try:
+            amount = float(amount_str)
+            date_obj = datetime.fromisoformat(date_str).date() # Renamed 'date' to 'date_obj' to avoid conflict
+        except ValueError:
+            messages.error(request, "Miqdor yoki sana noto'g'ri. Miqdor raqam, sana YYYY-MM-DD formatida bo'lishi kerak.")
+            # Redirect back to the current page, preserving filters
+            return redirect(request.META.get('HTTP_REFERER', 'app:expected_income_list'))
+
+        if owed_id:
+            od = get_object_or_404(Owed, pk=int(owed_id))
+            od.name, od.amount, od.date = name, amount, date_obj
+            od.save()
+            messages.success(request, "Kutilayotgan kirim yangilandi!")
+        else:
+            Owed.objects.create(name=name, amount=amount, date=date_obj)
+            messages.success(request, "Yangi kutilayotgan kirim qo'shildi!")
+        # Redirect back to the current page, preserving filters
+        return redirect(request.META.get('HTTP_REFERER', 'app:expected_income_list'))
+
+    return render(request, 'expected_income.html', {
+        'oweds': oweds,
+        'total': total,
+        'start': start,
+        'end': end,
+    })
+    
+@require_http_methods(['POST'])
+def delete_expected_income(request, pk):
+    owed = get_object_or_404(Owed, pk=pk)
+    owed_name = owed.name # Store name before deleting
+    owed.delete()
+    messages.success(request, f"Kutilayotgan kirim '{owed_name}' muvaffaqiyatli o'chirildi.")
+    return redirect(request.META.get('HTTP_REFERER', 'app:expected_income_list')) # Redirect back
+
+    

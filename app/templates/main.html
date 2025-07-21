@@ -4,104 +4,137 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bosh Sahifa - Kirimlar va Chiqimlar</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-blue: #4a69bd;
+            --text-dark: #333;
+            --text-light: #666;
+            --bg-light: #f0f2f5;
+            --white: #fff;
+            --shadow-light: rgba(0,0,0,0.1);
+            --shadow-hover: rgba(0,0,0,0.15);
+            --border-radius-lg: 12px;
+            --border-radius-md: 8px;
+            --transition-speed: 0.3s;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
-            color: #333;
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-light);
+            margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            margin: 0;
             padding: 20px;
             box-sizing: border-box;
         }
 
         .main-container {
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            box-shadow: 0 8px 25px var(--shadow-light);
             padding: 40px;
             text-align: center;
             max-width: 600px;
-            width: 100%;
+            width: 100%; /* Ensure it takes full width on smaller screens */
         }
 
         h1 {
-            color: #4a69bd;
+            color: var(--primary-blue);
             font-size: 2.8rem;
-            margin-bottom: 25px;
+            margin-bottom: 1rem;
             font-weight: 700;
+            letter-spacing: -0.5px;
         }
 
         p {
+            color: var(--text-light);
             font-size: 1.1rem;
-            color: #666;
-            margin-bottom: 40px;
-            line-height: 1.7;
+            margin-bottom: 2.5rem; /* Increased margin for better spacing */
+            line-height: 1.6;
         }
 
         .button-group {
-            display: flex;
-            flex-direction: column; /* Vertically stacked buttons */
-            gap: 20px; /* Space between buttons */
+            display: grid; /* Use grid for better control over layout */
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* Responsive grid columns */
+            gap: 1.2rem; /* Slightly increased gap */
+            justify-content: center;
         }
 
         .btn {
-            padding: 18px 30px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.3rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            gap: 0.75rem; /* Increased gap for icon and text */
+            padding: 1rem 1.8rem; /* Increased padding */
+            border: none;
+            border-radius: var(--border-radius-md);
+            color: var(--white);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all var(--transition-speed) ease; /* Smooth transition for all properties */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* Subtle initial shadow */
         }
 
         .btn-income {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%); /* Green for income */
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
         }
 
         .btn-expense {
-            background: linear-gradient(135deg, #dc3545 0%, #ff6f61 100%); /* Red for expense */
+            background: linear-gradient(135deg, #dc3545 0%, #ff6f61 100%);
         }
 
-        .btn-income span, .btn-expense span {
-            margin-right: 12px;
-            font-size: 1.8rem; /* Larger icon size */
+        .btn-expected-income {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
         }
 
-        @media (min-width: 550px) {
+        .btn-expected-expense {
+            background: linear-gradient(135deg, #ee7752 0%, #e73c7e 100%);
+        }
+
+        .btn:hover {
+            transform: translateY(-5px); /* More pronounced lift effect */
+            box-shadow: 0 10px 30px var(--shadow-hover); /* Stronger shadow on hover */
+            filter: brightness(1.05); /* Slightly brighten the button on hover */
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.4rem;
+            }
+            p {
+                font-size: 1rem;
+            }
             .button-group {
-                flex-direction: row; /* Horizontal for larger screens */
-                justify-content: center;
+                grid-template-columns: 1fr; /* Stack buttons vertically on smaller screens */
+            }
+            .main-container {
+                padding: 30px;
             }
         }
 
         @media (max-width: 480px) {
             .main-container {
-                padding: 30px 20px;
+                margin: 0;
+                padding: 25px;
+                border-radius: 0; /* Optional: remove border-radius on very small screens for edge-to-edge feel */
+                box-shadow: none; /* Optional: remove shadow on very small screens */
             }
             h1 {
-                font-size: 2.2rem;
+                font-size: 2rem;
             }
             p {
-                font-size: 1rem;
+                font-size: 0.95rem;
+                margin-bottom: 2rem;
             }
             .btn {
-                font-size: 1.1rem;
-                padding: 15px 25px;
+                font-size: 1rem;
+                padding: 0.9rem 1.5rem;
             }
         }
     </style>
@@ -111,12 +144,10 @@
         <h1>Xush Kelibsiz!</h1>
         <p>Moliyaviy operatsiyalaringizni boshqarish uchun quyidagi bo'limlardan birini tanlang:</p>
         <div class="button-group">
-            <a href="{% url 'app:income_list' %}" class="btn btn-income">
-                <span>💸</span> Kirimlar
-            </a>
-            <a href="{% url 'app:expense_list' %}" class="btn btn-expense">
-                <span>💰</span> Chiqimlar
-            </a>
+            <a href="{% url 'app:income_list' %}" class="btn btn-income">💸 Kirimlar</a>
+            <a href="{% url 'app:expense_list' %}" class="btn btn-expense">💰 Chiqimlar</a>
+            <a href="{% url 'app:expected_income_list' %}" class="btn btn-expected-income">⏳💸 Kutilayotgan Kirimlar</a>
+            <a href="{% url 'app:expected_expense_list' %}" class="btn btn-expected-expense">⏳💰 Kutilayotgan Chiqimlar</a>
         </div>
     </div>
 </body>

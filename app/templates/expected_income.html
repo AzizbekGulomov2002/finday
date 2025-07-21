@@ -1,0 +1,784 @@
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kutilayotgan Kirimlar Boshqaruvi</title>
+    <link href="[https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap](https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap)" rel="stylesheet">
+    <style>
+        :root {
+            --primary-green: #28a745; /* Main color for expected income */
+            --primary-green-dark: #1e7e34;
+            --gradient-start: #4facfe; /* Expected income button gradient */
+            --gradient-end: #00f2fe;
+            --text-dark: #333;
+            --text-light: #666;
+            --bg-light: #f0f2f5;
+            --white: #fff;
+            --shadow-light: rgba(0,0,0,0.1);
+            --shadow-hover: rgba(0,0,0,0.15);
+            --border-radius-lg: 12px;
+            --border-radius-md: 8px;
+            --transition-speed: 0.3s;
+        }
+
+        /* General Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+            color: white;
+            padding: 30px 0;
+            text-align: center;
+            margin-bottom: 30px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: 0 4px 15px var(--shadow-light);
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .back-button-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+
+        .back-button {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: white;
+            padding: 8px 15px;
+            border-radius: var(--border-radius-md);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all var(--transition-speed) ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Card Component */
+        .card {
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px var(--shadow-light);
+        }
+
+        /* Form Styling */
+        .form-section {
+            border-bottom: 2px solid #eee;
+            padding-bottom: 25px;
+            margin-bottom: 25px;
+        }
+
+        .form-title {
+            font-size: 1.5rem;
+            color: var(--primary-green); /* Changed to green */
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .form-title::before {
+            content: "⏳💸"; /* Changed icon */
+            margin-right: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: var(--border-radius-md);
+            font-size: 16px;
+            transition: all var(--transition-speed) ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="date"]:focus {
+            outline: none;
+            border-color: var(--primary-green); /* Changed to green */
+            box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1); /* Changed to green */
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: var(--border-radius-md);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-speed) ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%); /* Adjusted gradient */
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3); /* Adjusted shadow */
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-danger {
+            background: var(--primary-green); /* Changed to green for consistency with expected income */
+            color: white;
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+
+        .btn-danger:hover {
+            background: var(--primary-green-dark);
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: var(--border-radius-md);
+            margin-bottom: 25px;
+        }
+
+        .filter-title {
+            font-size: 1.2rem;
+            color: var(--text-dark);
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            align-items: end;
+        }
+        .filter-buttons .btn {
+            margin-top: 20px;
+        }
+
+        /* Total Display */
+        .total-display {
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%); /* Matched header gradient */
+            color: white;
+            padding: 20px;
+            border-radius: var(--border-radius-md);
+            text-align: center;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .total-amount {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        /* Table Styles */
+        .table-container {
+            overflow-x: auto;
+            border-radius: var(--border-radius-md);
+            box-shadow: 0 2px 10px var(--shadow-light);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th {
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%); /* Matched header gradient */
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .amount-cell {
+            font-weight: bold;
+            color: var(--primary-green); /* Changed to green */
+            font-size: 14px;
+        }
+
+        .date-cell {
+            color: var(--text-light);
+        }
+
+        .actions-cell {
+            text-align: center;
+            white-space: nowrap;
+        }
+        .actions-cell .btn {
+            padding: 6px 10px;
+            font-size: 14px;
+            margin: 0 3px;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 30px;
+            gap: 10px;
+        }
+
+        .pagination a,
+        .pagination span {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-decoration: none;
+            color: var(--primary-green); /* Changed to green */
+            transition: all var(--transition-speed) ease;
+        }
+
+        .pagination a:hover {
+            background: var(--primary-green); /* Changed to green */
+            color: white;
+        }
+
+        .pagination .current {
+            background: var(--primary-green); /* Changed to green */
+            color: white;
+            border-color: var(--primary-green); /* Changed to green */
+        }
+
+        /* No Data Message */
+        .no-data {
+            text-align: center;
+            padding: 50px;
+            color: var(--text-light);
+            font-size: 1.2rem;
+        }
+
+        /* Edit Form (Initially Hidden) */
+        .edit-form {
+            display: none;
+            background: #e6ffe6; /* Light green background for expected income edit */
+            border: 1px solid #c9e6c9;
+            border-radius: var(--border-radius-md);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .edit-form.active {
+            display: block;
+        }
+
+        /* Modal/Alert for New Expense Form */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            justify-content: center;
+            align-items: center;
+            padding-top: 50px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 30px;
+            border: 1px solid #888;
+            border-radius: var(--border-radius-lg);
+            width: 80%;
+            max-width: 600px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+            animation-name: animatetop;
+            animation-duration: 0.4s
+        }
+
+        @keyframes animatetop {
+            from {top: -300px; opacity: 0}
+            to {top: 0; opacity: 1}
+        }
+
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            position: absolute;
+            right: 15px;
+            top: 10px;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* Messages Styling */
+        .messages {
+            list-style: none;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: var(--border-radius-md);
+        }
+
+        .messages li {
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .messages .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .messages .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .messages .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .back-button-container {
+                top: 10px;
+                left: 10px;
+            }
+            .back-button {
+                font-size: 0.8rem;
+                padding: 6px 10px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 14px;
+            }
+
+            th, td {
+                padding: 10px 8px;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+            }
+        }
+        @media (max-width: 480px) {
+            .container {
+                padding: 5px;
+            }
+            .header {
+                border-radius: 0;
+            }
+            .main-container {
+                margin: 0;
+                padding: 15px;
+                border-radius: 0;
+                box-shadow: none;
+            }
+            h1 {
+                font-size: 1.8rem;
+            }
+            p {
+                font-size: 0.9rem;
+            }
+            .btn {
+                padding: 8px 15px;
+                font-size: 13px;
+            }
+            .form-title {
+                font-size: 1.3rem;
+            }
+            input[type="text"],
+            input[type="number"],
+            input[type="date"] {
+                padding: 10px 12px;
+                font-size: 14px;
+            }
+            .total-amount {
+                font-size: 1.6rem;
+            }
+            .no-data {
+                padding: 30px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="back-button-container">
+                <a href="{% url 'app:main' %}" class="back-button">
+                    &larr; Ortga
+                </a>
+            </div>
+            <h1>Kutilayotgan Kirimlar</h1>
+        </div>
+
+        {# Django Messages for user feedback #}
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li class="{{ message.tags }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <div class="card">
+            <div id="editForm" class="edit-form">
+                <h3 class="form-title">✏️ Kutilayotgan kirimni tahrirlash</h3>
+                <form method="post" id="editExpectedIncomeForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="id" id="editId">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editName">Nomi:</label>
+                            <input type="text" name="name" id="editName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editAmount">Miqdor (so'm):</label>
+                            <input type="text" name="amount" id="editAmount" required oninput="formatCurrency(this)">
+                        </div>
+                        <div class="form-group">
+                            <label for="editDate">Sana:</label>
+                            <input type="date" name="date" id="editDate" required>
+                        </div>
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <button type="submit" class="btn btn-primary">Saqlash</button>
+                        <button type="button" class="btn btn-secondary" onclick="cancelEdit()">Bekor qilish</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="filter-section">
+                <h3 class="filter-title">📅 Filtrlash</h3>
+                <form method="get" class="filter-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="start">Boshlanish sanasi:</label>
+                            <input type="date" name="start" id="start" value="{{ start }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="end">Tugash sanasi:</label>
+                            <input type="date" name="end" id="end" value="{{ end }}">
+                        </div>
+                        <div class="filter-buttons">
+                            <button type="submit" class="btn btn-primary">Filtrlash</button>
+                            <button type="button" class="btn btn-primary" onclick="openAddExpectedIncomeModal()">➕ Yangi</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            {% if total is not None and request.GET.start and request.GET.end %}
+            <div class="total-display">
+                <div>Jami kutilayotgan kirim:</div>
+                <div class="total-amount" id="totalAmount">{{ total|floatformat:0 }} so'm</div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <h2 class="form-title">Kutilayotgan Kirimlar Ro'yxati</h2>
+            
+            {% if oweds %}
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>№</th>
+                            <th>Nomi</th>
+                            <th>Miqdor</th>
+                            <th>Sana</th>
+                            <th>Amallar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for owed in oweds %}
+                        <tr>
+                            <td>{{ forloop.counter|add:oweds.start_index|add:'-1' }}</td>
+                            <td>{{ owed.name }}</td>
+                            <td class="amount-cell" data-amount="{{ owed.amount }}">{{ owed.amount|floatformat:0 }}</td>
+                            <td class="date-cell">{{ owed.date|date:"d.m.Y" }}</td>
+                            <td class="actions-cell">
+                                <button class="btn btn-secondary" 
+                                        onclick="editExpectedIncome({{ owed.id }}, '{{ owed.name }}', {{ owed.amount }}, '{{ owed.date|date:"Y-m-d" }}')"
+                                        title="Tahrirlash">
+                                    ✏️
+                                </button>
+                                <form action="{% url 'app:delete_expected_income' owed.id %}" method="post" style="display:inline;" onsubmit="return confirm('Haqiqatan ham o\'chirmoqchimisiz?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger" title="O'chirish">
+                                        🗑️
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if oweds.has_other_pages %}
+            <div class="pagination">
+                {% if oweds.has_previous %}
+                    <a href="?page=1{% if request.GET.start %}&start={{ request.GET.start }}{% endif %}{% if request.GET.end %}&end={{ request.GET.end }}{% endif %}">&laquo; Birinchi</a>
+                    <a href="?page={{ oweds.previous_page_number }}{% if request.GET.start %}&start={{ request.GET.start }}{% endif %}{% if request.GET.end %}&end={{ request.GET.end }}{% endif %}">&lsaquo; Oldingi</a>
+                {% endif %}
+
+                {% for num in oweds.paginator.page_range %}
+                    {% if oweds.number == num %}
+                        <span class="current">{{ num }}</span>
+                    {% elif num > oweds.number|add:'-3' and num < oweds.number|add:'3' %}
+                        <a href="?page={{ num }}{% if request.GET.start %}&start={{ request.GET.start }}{% endif %}{% if request.GET.end %}&end={{ request.GET.end }}{% endif %}">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+
+                {% if oweds.has_next %}
+                    <a href="?page={{ oweds.next_page_number }}{% if request.GET.start %}&start={{ request.GET.start }}{% endif %}{% if request.GET.end %}&end={{ request.GET.end }}{% endif %}">Keyingi &rsaquo;</a>
+                    <a href="?page={{ oweds.paginator.num_pages }}{% if request.GET.start %}&start={{ request.GET.start }}{% endif %}{% if request.GET.end %}&end={{ request.GET.end }}{% endif %}">Oxirgi &raquo;</a>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            {% else %}
+            <div class="no-data">
+                <p>🔍 Hozircha kutilayotgan kirimlar mavjud emas.</p>
+                <p>"Yangi" tugmasi orqali kutilayotgan kirim qo'shing.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div id="addExpectedIncomeModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeAddExpectedIncomeModal()">&times;</span>
+            <h2 class="form-title">Yangi kutilayotgan kirim qo'shish</h2>
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="name">Nomi:</label>
+                        <input type="text" name="name" id="name" placeholder="Masalan: Ish haqi" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="amount">Miqdor (so'm):</label>
+                        <input type="text" name="amount" id="amount" placeholder="2 000 000" required oninput="formatCurrency(this)">
+                    </div>
+                    <div class="form-group">
+                        <label for="date">Sana:</label>
+                        <input type="date" name="date" id="date" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Qo'shish</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Get today's date in YYYY-MM-DD format
+        function getTodayDate() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set today's date for filter inputs if they are empty
+            const startDateInput = document.getElementById('start');
+            const endDateInput = document.getElementById('end');
+            if (!startDateInput.value) startDateInput.value = getTodayDate();
+            if (!endDateInput.value) endDateInput.value = getTodayDate();
+            
+            // Set today's date for new expected income form's date input
+            document.getElementById('date').value = getTodayDate();
+
+            // Format existing amounts in the table and total amount
+            formatExistingAmounts();
+            formatTotalAmount();
+        });
+
+        // Function to format currency with spaces for thousands
+        function formatCurrency(input) {
+            let value = input.value.replace(/\s/g, '').replace(/,/g, ''); // Remove existing spaces and commas
+            if (value && !isNaN(value)) {
+                input.value = parseFloat(value).toLocaleString('uz-UZ').replace(/,/g, ' ');
+            }
+        }
+
+        // Apply formatting to amounts already rendered in the table
+        function formatExistingAmounts() {
+            const amountCells = document.querySelectorAll('.amount-cell');
+            amountCells.forEach(cell => {
+                const amount = cell.getAttribute('data-amount');
+                if (amount) {
+                    cell.textContent = parseFloat(amount).toLocaleString('uz-UZ').replace(/,/g, ' ') + ' so\'m';
+                }
+            });
+        }
+
+        // Apply formatting to the total amount display
+        function formatTotalAmount() {
+            const totalElement = document.getElementById('totalAmount');
+            if (totalElement) {
+                const rawAmount = totalElement.textContent.replace(/[^\d.]/g, ''); 
+                if (rawAmount) {
+                    totalElement.textContent = parseFloat(rawAmount).toLocaleString('uz-UZ').replace(/,/g, ' ') + ' so\'m';
+                }
+            }
+        }
+
+        // --- Modal functionality for "Add New Expected Income" ---
+        const addExpectedIncomeModal = document.getElementById('addExpectedIncomeModal');
+
+        function openAddExpectedIncomeModal() {
+            addExpectedIncomeModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            document.querySelector('#addExpectedIncomeModal form').reset();
+            document.getElementById('date').value = getTodayDate();
+        }
+
+        function closeAddExpectedIncomeModal() {
+            addExpectedIncomeModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        window.onclick = function(event) {
+            if (event.target == addExpectedIncomeModal) {
+                closeAddExpectedIncomeModal();
+            }
+        }
+
+        // --- Edit Expected Income functionality ---
+        function editExpectedIncome(id, name, amount, date) {
+            document.getElementById('editId').value = id;
+            document.getElementById('editName').value = name;
+            document.getElementById('editAmount').value = parseFloat(amount).toLocaleString('uz-UZ').replace(/,/g, ' ');
+            document.getElementById('editDate').value = date;
+            document.getElementById('editForm').classList.add('active');
+            
+            document.getElementById('editForm').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function cancelEdit() {
+            document.getElementById('editForm').classList.remove('active');
+        }
+
+        // --- Clean amount values before form submission ---
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                const amountInputs = form.querySelectorAll('input[name="amount"]');
+                amountInputs.forEach(input => {
+                    input.value = input.value.replace(/\s/g, '');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
